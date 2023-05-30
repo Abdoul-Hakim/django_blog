@@ -2,6 +2,10 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Post.Status.PUBLISHED)
+
 class Post(models.Model):
     # django enumeration for status
     class Status(models.TextChoices):
@@ -12,6 +16,9 @@ class Post(models.Model):
     #  many-to-one relationship
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_post')
     body = models.TextField()
+    # ..
+    objects = models.Manager() # the default manager
+    published = PublishedManager() # custom mananger
     publish = models.DateTimeField(default=timezone.now)
     # auto_now_add automatically stores the current date when the object is created
     created = models.DateTimeField(auto_now_add=True)
